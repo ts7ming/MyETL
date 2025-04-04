@@ -1,0 +1,111 @@
+/* 基础表格样式 */
+.beautiful-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+/* 表头样式 */
+.beautiful-table thead th {
+  background-color: #2c3e50;
+  color: #ffffff;
+  text-align: left;
+  font-weight: bold;
+  padding: 12px 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 0.9em;
+  border-bottom: 2px solid #3498db;
+}
+
+/* 表格行样式 */
+.beautiful-table tbody tr {
+  transition: all 0.3s ease;
+}
+
+/* 斑马纹效果 */
+.beautiful-table tbody tr:nth-of-type(even) {
+  background-color: #f8f9fa;
+}
+
+/* 悬停效果 */
+.beautiful-table tbody tr:hover {
+  background-color: #e9ecef;
+  transform: translateX(5px);
+}
+
+/* 表格单元格样式 */
+.beautiful-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* 响应式设计 */
+@media screen and (max-width: 600px) {
+  .beautiful-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .beautiful-table thead {
+    display: none;
+  }
+
+  .beautiful-table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  .beautiful-table td {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  /* 添加伪元素显示列名 */
+  .beautiful-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #6c757d;
+  }
+}
+
+/* 可选：添加排序箭头 */
+.beautiful-table th.sortable {
+  cursor: pointer;
+  position: relative;
+}
+
+.beautiful-table th.sortable::after {
+  content: "↕";
+  margin-left: 8px;
+  color: #95a5a6;
+  font-size: 0.8em;
+}
+
+/* 可选：操作按钮样式 */
+.beautiful-table .action-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.beautiful-table .edit-btn {
+  background-color: #3498db;
+  color: white;
+}
+
+.beautiful-table .delete-btn {
+  background-color: #e74c3c;
+  color: white;
+}

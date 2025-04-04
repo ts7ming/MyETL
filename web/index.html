@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="table.css">
+</head>
+<body>
+<h1>任务列表</h1>
+<table class="beautiful-table">
+    <thead>
+    <tr>
+        <th class="sortable">任务名</th>
+        <th class="sortable">类型</th>
+        <th class="sortable">工作目录</th>
+        <th class="sortable">参数</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in items %}
+    <tr>
+        <td data-label="任务名">{{ item[1] }}</td>
+        <td data-label="类型">{{ item[2] }}</td>
+        <td data-label="工作目录">{{ item[3] }}</td>
+        <td data-label="参数">{{ item[4] }}</td>
+        <td>
+            <button class="action-btn edit-btn">编辑</button>
+            <button class="action-btn delete-btn">删除</button>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</ul>
+</body>
+</html>
