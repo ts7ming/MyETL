@@ -1,7 +1,7 @@
 from pyqueen import DataSource, TimeKit, Dingtalk
-from settings import DATABASES, DINGTALK_DEV, WORK_DIR
-from utils.data_sync import data_sync
-from utils.config import get_dingtalk
+from settings import SERVERS, DINGTALK_DEV, WORK_DIR
+from workflow.data_sync import data_sync
+from workflow.config import get_dingtalk
 import importlib
 import sys, os
 try:
@@ -14,7 +14,7 @@ T_JOB = 'etl_job'
 T_JOB_LOG = 'etl_job_log'
 
 
-ds = DataSource(**DATABASES['10'])
+ds = DataSource(**SERVERS['10'])
 ds.set_db('dw')
 
 
