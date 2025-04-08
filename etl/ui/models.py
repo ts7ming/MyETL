@@ -1,4 +1,4 @@
-from etl import db
+from etl.ui import db
 
 
 class EtlDataCheck(db.Model):

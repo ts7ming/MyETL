@@ -1,5 +1,5 @@
 from pyqueen import DataSource
-from settings import DATABASES
+from settings import SERVERS
 
 try:
     from settings import DEV
@@ -9,8 +9,7 @@ except:
 T_CHECK = 'etl_data_check'
 
 
-ds = DataSource(**DATABASES['10'])
-ds.set_db('dw')
+ds = DataSource(**SERVERS['main'])
 
 
 def get_check_job(check_list):

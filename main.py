@@ -1,7 +1,7 @@
 from pyqueen import DataSource, TimeKit, Dingtalk
 from settings import SERVERS, DINGTALK_DEV, WORK_DIR
-from workflow.data_sync import data_sync
-from workflow.config import get_dingtalk
+from etl.workflow.data_sync import data_sync
+from etl.workflow import get_dingtalk
 import importlib
 import sys, os
 try:
