@@ -6,6 +6,6 @@ export PATH=$PATH:/opt/oracle-tools/instantclient_11_2
 
 ## 04:00 开始执行
 
-cd /home/maqiming/project/LdETL;
+cd /home/xProject/CheapETL/;
 
 python3 main.py

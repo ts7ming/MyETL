@@ -71,7 +71,7 @@ CREATE TABLE "etl_job" (
   "job_schedule_hour" text,
   "job_schedule_day" text,
   "job_schedule_week" text,
-  "job_schedule_month" text
+  "job_schedule_month" text,
   PRIMARY KEY ("id")
 );
 
@@ -113,8 +113,8 @@ CREATE TABLE "etl_server" (
   password text  NULL,
   port text  NULL,
   db_name text  NULL,
-  PRIMARY KEY ("id")
-)
+  PRIMARY KEY ("server_id")
+);
 
 -- ----------------------------
 -- Table structure for etl_workflow_log

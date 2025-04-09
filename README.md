@@ -24,7 +24,7 @@
 - PgSQL
 - Oracle
 ### 调度 
->每分钟执行 main.sh 或根据实际情况降低频率
+>每分钟执行 start.sh/start.bat 或根据实际情况降低频率
 - Windows计划任务
 - Linux Crontab
 ### 界面
@@ -32,5 +32,8 @@
 - 本地启动web
 - 服务器部署web
 
-# 3. ToDo
+# 3. 配置
+- 基础配置 `settings.py`
+
+# 4. ToDo
 - 试试内置7b级的大模型来解析SQL, 应该比正则效果好

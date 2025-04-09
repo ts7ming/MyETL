@@ -2,7 +2,6 @@ import importlib
 import os
 import sys
 from pyqueen import DataSource, TimeKit
-
 from cheap.etl.data_check import data_check
 from cheap.etl.data_sync import data_sync
 from cheap.etl.utils import msg_robot
@@ -92,10 +91,12 @@ def register_job(job_list):
 
 
 def start_job(job_id):
+    tk = TimeKit()
+    t_now = tk.int2str(tk.now)
     sql1 = f'update {T_JOB} set execution_status=2 where id = {job_id}'
     sql2 = f'''
         insert into {T_JOB_LOG} (job_id, execution_status, start_time) 
-        select id as job_id, 2 as execution_status, getdate() as start_time 
+        select id as job_id, 2 as execution_status, '{t_now}' as start_time 
         from {T_JOB} 
         where id = {job_id}
     '''
@@ -107,18 +108,20 @@ def start_job(job_id):
 
 
 def end_job(job_id, log_id, status, msg):
+    tk = TimeKit()
+    t_now = tk.int2str(tk.now)
     sql1 = f'update {T_JOB} set execution_status=0 where id ={job_id}'
     if msg is None:
-        sql2 = f'update {T_JOB_LOG} set execution_status={status}, end_time = getdate() where id ={log_id}'
+        sql2 = f"update {T_JOB_LOG} set execution_status={status}, end_time = '{t_now}' where id ={log_id}"
     else:
         msg = msg.replace("'", '"')
-        sql2 = f'''update {T_JOB_LOG} set execution_status={status}, error_message='{msg}', end_time = getdate() where id ={log_id}'''
+        sql2 = f'''update {T_JOB_LOG} set execution_status={status}, error_message='{msg}', end_time = {t_now} where id ={log_id}'''
     ds.exe_sql(sql1)
     ds.exe_sql(sql2)
 
 
 def exe(job_type, job_params):
-    if job_type == 'etl':
+    if job_type == 'workflow':
         wf = import_from_absolute_path(os.path.join(WORK_DIR, job_params))
         wf.main()
     elif job_type == 'datasync':
@@ -145,7 +148,7 @@ def run(job):
         end_job(job['id'], log_id, 2, None)
     else:
         end_job(job['id'], log_id, 3, msg)
-        msg_robot(id=job['message_robot'], msg='ETL任务 ' + str(job['job_name']) + '\n执行出错\n\n' + str(msg)[0:100])
+        msg_robot(robot_id=job['message_robot'], msg='ETL任务 ' + str(job['job_name']) + '\n执行出错\n\n' + str(msg)[0:100])
 
     follow_job_list = get_follow_job(str(job['id']))
     if len(follow_job_list) == 0:
