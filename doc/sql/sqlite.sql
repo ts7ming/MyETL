@@ -7,7 +7,6 @@ CREATE TABLE "etl_data_check" (
   "server_id" integer,
   "db_name" text,
   "check_sql" text,
-  "check_value" text,
   "warning_message" text,
   "robot_id" integer
 );
@@ -65,14 +64,14 @@ CREATE TABLE "etl_job" (
   "job_dir" text,
   "job_params" text,
   "execution_status" integer,
+  "job_status" integer,
+  "job_depend" text,
+  "message_robot" integer,
   "job_schedule_minute" text,
   "job_schedule_hour" text,
   "job_schedule_day" text,
   "job_schedule_week" text,
-  "job_schedule_month" text,
-  "job_status" integer,
-  "job_depend" text,
-  "message_robot" integer,
+  "job_schedule_month" text
   PRIMARY KEY ("id")
 );
 
@@ -106,9 +105,16 @@ CREATE TABLE "etl_robot" (
 -- ----------------------------
 DROP TABLE IF EXISTS "etl_server";
 CREATE TABLE "etl_server" (
-  "server_id" integer NOT NULL,
-  "server_name" text
-);
+  server_id text  NOT NULL,
+  server_name text  NULL,
+  conn_type text  NULL,
+  host text  NULL,
+  username text  NULL,
+  password text  NULL,
+  port text  NULL,
+  db_name text  NULL,
+  PRIMARY KEY ("id")
+)
 
 -- ----------------------------
 -- Table structure for etl_workflow_log

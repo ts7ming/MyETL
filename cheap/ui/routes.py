@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from etl.ui.models import EtlJob
+from cheap.ui.models import EtlJob
 
 main = Blueprint('main', __name__)
 

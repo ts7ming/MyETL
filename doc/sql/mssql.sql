@@ -10,7 +10,6 @@ CREATE TABLE [dbo].[etl_data_check] (
   [server_id] int  NULL,
   [db_name] varchar(255) COLLATE Chinese_PRC_CI_AS  NULL,
   [check_sql] nvarchar(max) COLLATE Chinese_PRC_CI_AS  NULL,
-  [check_value] nvarchar(50) COLLATE Chinese_PRC_CI_AS  NULL,
   [warning_message] nvarchar(max) COLLATE Chinese_PRC_CI_AS  NULL,
   [robot_id] int  NULL
 )
@@ -38,13 +37,6 @@ EXEC sp_addextendedproperty
 'SCHEMA', N'dbo',
 'TABLE', N'etl_data_check',
 'COLUMN', N'check_sql'
-GO
-
-EXEC sp_addextendedproperty
-'MS_Description', N'检查SQL结果',
-'SCHEMA', N'dbo',
-'TABLE', N'etl_data_check',
-'COLUMN', N'check_value'
 GO
 
 EXEC sp_addextendedproperty
@@ -76,7 +68,7 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[et
 GO
 
 CREATE TABLE [dbo].[etl_data_sync] (
-  [id] int  IDENTITY(1,1) NOT NULL,
+  [id] int  NOT NULL,
   [from_server] int  NOT NULL,
   [from_db] nvarchar(50) COLLATE Chinese_PRC_CI_AS  NULL,
   [from_sql] nvarchar(max) COLLATE Chinese_PRC_CI_AS  NULL,
@@ -220,7 +212,7 @@ CREATE TABLE [dbo].[etl_devops_fr_sql] (
   [fr_path] nvarchar(max) COLLATE Chinese_PRC_CI_AS  NULL,
   [server] nvarchar(50) COLLATE Chinese_PRC_CI_AS  NULL,
   [fr_dataset] varchar(50) COLLATE Chinese_PRC_CI_AS  NULL,
-  [sql] nvarchar(max) COLLATE Chinese_PRC_CI_AS  NULL
+  [sql_text] nvarchar(max) COLLATE Chinese_PRC_CI_AS  NULL
 )
 GO
 
@@ -242,21 +234,23 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[et
 GO
 
 CREATE TABLE [dbo].[etl_job] (
-  [id] int  IDENTITY(1,1) NOT NULL,
+  [id] int  NOT NULL,
   [job_name] nvarchar(100) COLLATE Chinese_PRC_CI_AS  NULL,
   [job_type] nvarchar(50) COLLATE Chinese_PRC_CI_AS  NULL,
   [job_dir] nvarchar(50) COLLATE Chinese_PRC_CI_AS  NULL,
   [job_params] nvarchar(max) COLLATE Chinese_PRC_CI_AS  NULL,
   [execution_status] int  NULL,
+  [job_status] int  NULL,
+  [job_depend] nvarchar(100) COLLATE Chinese_PRC_CI_AS  NULL,
+  [message_robot] int  NULL,
   [job_schedule_minute] varchar(120) COLLATE Chinese_PRC_CI_AS  NULL,
   [job_schedule_hour] varchar(100) COLLATE Chinese_PRC_CI_AS  NULL,
   [job_schedule_day] varchar(100) COLLATE Chinese_PRC_CI_AS  NULL,
   [job_schedule_week] varchar(20) COLLATE Chinese_PRC_CI_AS  NULL,
-  [job_schedule_month] varchar(50) COLLATE Chinese_PRC_CI_AS  NULL,
-  [job_status] int  NULL,
-  [job_depend] nvarchar(100) COLLATE Chinese_PRC_CI_AS  NULL,
-  [message_robot] int  NULL
+  [job_schedule_month] varchar(50) COLLATE Chinese_PRC_CI_AS  NULL
 )
+ON [PRIMARY]
+TEXTIMAGE_ON [PRIMARY]
 GO
 
 ALTER TABLE [dbo].[etl_job] SET (LOCK_ESCALATION = TABLE)
@@ -305,6 +299,27 @@ EXEC sp_addextendedproperty
 GO
 
 EXEC sp_addextendedproperty
+'MS_Description', N'作业状态: 0:停用, 1:启用',
+'SCHEMA', N'dbo',
+'TABLE', N'etl_job',
+'COLUMN', N'job_status'
+GO
+
+EXEC sp_addextendedproperty
+'MS_Description', N'作业依赖, 前序job_id',
+'SCHEMA', N'dbo',
+'TABLE', N'etl_job',
+'COLUMN', N'job_depend'
+GO
+
+EXEC sp_addextendedproperty
+'MS_Description', N'报错机器人(为空不通知)',
+'SCHEMA', N'dbo',
+'TABLE', N'etl_job',
+'COLUMN', N'message_robot'
+GO
+
+EXEC sp_addextendedproperty
 'MS_Description', N'作业计划-分钟',
 'SCHEMA', N'dbo',
 'TABLE', N'etl_job',
@@ -340,32 +355,10 @@ EXEC sp_addextendedproperty
 GO
 
 EXEC sp_addextendedproperty
-'MS_Description', N'作业状态: 0:停用, 1:启用',
-'SCHEMA', N'dbo',
-'TABLE', N'etl_job',
-'COLUMN', N'job_status'
-GO
-
-EXEC sp_addextendedproperty
-'MS_Description', N'作业依赖, 前序job_id',
-'SCHEMA', N'dbo',
-'TABLE', N'etl_job',
-'COLUMN', N'job_depend'
-GO
-
-EXEC sp_addextendedproperty
-'MS_Description', N'报错机器人(为空不通知)',
-'SCHEMA', N'dbo',
-'TABLE', N'etl_job',
-'COLUMN', N'message_robot'
-GO
-
-EXEC sp_addextendedproperty
 'MS_Description', N'ETL-作业',
 'SCHEMA', N'dbo',
 'TABLE', N'etl_job'
 GO
-
 
 -- ----------------------------
 -- Table structure for etl_job_log
@@ -462,19 +455,39 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[et
 GO
 
 CREATE TABLE [dbo].[etl_server] (
-  [server_id] int  NOT NULL,
-  [server_name] nvarchar(100) COLLATE Chinese_PRC_CI_AS  NULL
+  [server_id] varchar(50) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [server_name] nvarchar(100) COLLATE Chinese_PRC_CI_AS  NULL,
+  [conn_type] varchar(20) COLLATE Chinese_PRC_CI_AS  NULL,
+  [host] varchar(200) COLLATE Chinese_PRC_CI_AS  NULL,
+  [username] varchar(100) COLLATE Chinese_PRC_CI_AS  NULL,
+  [password] varchar(100) COLLATE Chinese_PRC_CI_AS  NULL,
+  [port] varchar(10) COLLATE Chinese_PRC_CI_AS  NULL,
+  [db_name] varchar(50) COLLATE Chinese_PRC_CI_AS  NULL
 )
+ON [PRIMARY]
 GO
 
 ALTER TABLE [dbo].[etl_server] SET (LOCK_ESCALATION = TABLE)
 GO
 
 EXEC sp_addextendedproperty
+'MS_Description', N'名称',
+'SCHEMA', N'dbo',
+'TABLE', N'etl_server',
+'COLUMN', N'server_name'
+GO
+
+EXEC sp_addextendedproperty
+'MS_Description', N'连接类型(sqlite,mysql,mssql,oracle,pgsql,clickhouse)',
+'SCHEMA', N'dbo',
+'TABLE', N'etl_server',
+'COLUMN', N'conn_type'
+GO
+
+EXEC sp_addextendedproperty
 'MS_Description', N'ETL-服务器列表',
 'SCHEMA', N'dbo',
 'TABLE', N'etl_server'
-GO
 
 
 -- ----------------------------

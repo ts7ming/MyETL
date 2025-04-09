@@ -1,13 +1,6 @@
-from pyqueen import DataSource, Dingtalk
-from settings import SERVERS
+from pyqueen import DataSource
+from settings import SERVERS, T_SYNC, T_SYNC_LOG
 
-try:
-    from settings import DEV
-except:
-    DEV = True
-
-T_SYNC = 'etl_data_sync'
-T_SYNC_LOG = 'etl_data_sync_log'
 
 ds = DataSource(**SERVERS['main'])
 
@@ -28,7 +21,7 @@ def get_job(user_job_list):
             to_table,
             before_write
         FROM
-            dbo.{T_SYNC}
+            {T_SYNC}
         WHERE
             id in ({job_list_str})
     '''
