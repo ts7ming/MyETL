@@ -31,9 +31,7 @@ SERVERS = {
     # 配置数据库 - 可选 sqlite, SQL SERVER, MySQL
     'main': {
         'conn_type': 'sqlite',
-        'file_path': str(os.path.join(WORK_DIR, 'cheap/cheap.db')),
-        'username': '',
-        'db_name': 'main'
+        'host': str(os.path.join(WORK_DIR, 'cheap/cheap.db'))
     },
     # 新增其他业务数据库
     'dw01': {
