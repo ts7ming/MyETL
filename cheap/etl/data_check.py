@@ -1,5 +1,6 @@
 from pyqueen import DataSource
-from settings import SERVERS, T_CHECK
+from settings import SERVERS
+from cheap.models import EtlDataCheck, get_session
 from cheap.etl.utils import msg_robot
 
 ds = DataSource(**SERVERS['main'])
@@ -9,22 +10,22 @@ def get_check_job(check_list):
     """
     添加逗号, 确保不会误匹配
     """
-    check_list_str = ','.join([str(x) for x in check_list])
-    sql = f'''
-        SELECT id,server_id,db_name,check_sql,warning_message,robot_id
-        FROM {T_CHECK}
-        WHERE id in ({check_list_str})
-    '''
-    df = ds.read_sql(sql)
-    return df.to_dict('records')
+    check_list = [str(x) for x in check_list]
+    session = get_session(ds)
+    try:
+        # 使用 in_ 操作符进行查询
+        c_job = session.query(EtlDataCheck).filter(EtlDataCheck.id.in_(check_list)).all()
+        return c_job
+    finally:
+        session.close()
 
 
 def check(job):
-    ds = DataSource(**SERVERS[str(job['server_id'])])
-    ds.set_db(job['db_name'])
-    v = ds.get_value(job['check_sql'])
+    tmp_ds = DataSource(**SERVERS[str(job.server_id)])
+    tmp_ds.set_db(job.db_name)
+    v = ds.get_value(job.check_sql)
     if str(v) == '1':
-        msg_robot(robot_id=job['robot_id'], msg=job['warning_message'])
+        msg_robot(robot_id=job.robot_id, msg=job.warning_message)
 
 
 def data_check(user_job_list):

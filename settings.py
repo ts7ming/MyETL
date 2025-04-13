@@ -11,15 +11,15 @@ DEV = False
 
 # 是否开启工作流日志
 WF_LOG = True
-T_WORKFLOW_LOG = 'etl_workflow_log'
+T_ETL_WORKFLOW_LOG = 'etl_workflow_log'
 
 # 表
-T_JOB = 'etl_job'
-T_JOB_LOG = 'etl_job_log'
-T_SYNC = 'etl_data_sync'
-T_SYNC_LOG = 'etl_data_sync_log'
+T_ETL_JOB = 'etl_job'
+T_ETL_JOB_LOG = 'etl_job_log'
+T_ETL_SYNC = 'etl_data_sync'
+T_ETL_SYNC_LOG = 'etl_data_sync_log'
 
-T_CHECK = 'etl_data_check'
+T_ETL_CHECK = 'etl_data_check'
 
 # 数据库和其他服务连接方式
 # 必须配置一个`main` 数据库作为系统服务
