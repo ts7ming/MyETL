@@ -1,27 +1,27 @@
+import inspect
+
 from pyqueen import DataSource, Dingtalk
 from settings import (
     SERVERS,
     ROBOTS,
     WF_LOG,
-    T_WORKFLOW_LOG,
     DEV,
     T_ETL_SERVER,
     T_ETL_ROBOT,
 )
-import pandas as pd
+
+from cheap.models import session_context, EtlWorkflowLog, EtlRobot, EtlServer
 
 
 def log(etl_log):
     log_field = ['py_path', 'func_name', 'start_time', 'end_time', 'duration', 'file_path', 'sql_text', 'server_id', 'db_name', 'table_name']
     if DEV:
         print(etl_log)
-    try:
-        etl_log = {k: [v] for k, v in etl_log.items() if k in log_field}
-        df = pd.DataFrame(etl_log)
-        ds_log = DataSource(**SERVERS['main'])
-        ds_log.to_db(df, T_WORKFLOW_LOG)
-    except Exception as e:
-        print(e)
+    etl_log = {k: [v] for k, v in etl_log.items() if k in log_field}
+    new_log = EtlWorkflowLog(**etl_log)
+    with session_context() as session:
+        session.add(new_log)
+        session.commit()
 
 
 def get_dingtalk(ding_id):
@@ -29,15 +29,10 @@ def get_dingtalk(ding_id):
         return Dingtalk(**ROBOTS[ding_id])
     else:
         ding_id = str(ding_id)
-        __ds = DataSource(**SERVERS['main'])
-        sql = f'''
-        select access_token,secret
-        from {T_ETL_ROBOT}
-        where id = '{ding_id}'
-        '''
-        df = __ds.read_sql(sql)
-        if df.empty is False:
-            return Dingtalk(access_token=df['access_token'].to_list()[0], secret=df['secret'].to_list()[0])
+        with session_context() as session:
+            ding_cfg = session.query(EtlRobot).filter(id=ding_id).first()
+            if ding_cfg is not None:
+                return Dingtalk(access_token=ding_cfg.access_token, secret=ding_cfg.secret)
 
 
 def get_ds(server_id):
@@ -48,14 +43,10 @@ def get_ds(server_id):
         return ds
     else:
         server_id = str(server_id)
-        t_ds = DataSource(**SERVERS['main'])
-        sql = f'''
-        select conn_type,host,username,password,port,db_name
-        from {T_ETL_SERVER}
-        where server_id = {server_id}
-        '''
-        cfg = t_ds.read_sql(sql).to_dict(orient='records')[0]
-        ds = DataSource(**cfg)
+        with session_context() as session:
+            cfg = session.query(EtlServer).filter(id=server_id).first()
+            params = {k: v for k, v in vars(cfg).items() if not k.startswith('_')}
+            ds = DataSource(**params)
         if WF_LOG:
             ds.set_logger(logger=log, server_id=server_id)
         return ds

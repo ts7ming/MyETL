@@ -1,6 +1,6 @@
 from pyqueen import DataSource
 from settings import SERVERS
-from cheap.models import EtlDataCheck, get_session
+from cheap.models import EtlDataCheck, session_context
 from cheap.etl.utils import msg_robot
 
 ds = DataSource(**SERVERS['main'])
@@ -11,13 +11,9 @@ def get_check_job(check_list):
     添加逗号, 确保不会误匹配
     """
     check_list = [str(x) for x in check_list]
-    session = get_session(ds)
-    try:
-        # 使用 in_ 操作符进行查询
+    with session_context(ds.get_jdbc_url()) as session:
         c_job = session.query(EtlDataCheck).filter(EtlDataCheck.id.in_(check_list)).all()
         return c_job
-    finally:
-        session.close()
 
 
 def check(job):

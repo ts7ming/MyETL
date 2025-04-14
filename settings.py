@@ -25,7 +25,7 @@ T_ETL_CHECK = 'etl_data_check'
 # 必须配置一个`main` 数据库作为系统服务
 # 业务数据库可以配置在 下面 `SERVERS` 中, 也可以配置在 `T_ETL_SERVER` 表中
 
-T_ETL_SERVER = None  # 'etl_server'  # 如果为 None 则使用 `SERVERS` 配置
+T_ETL_SERVER = 'etl_server'  # 如果为 None 则使用 `SERVERS` 配置
 
 SERVERS = {
     # 配置数据库 - 可选 sqlite, SQL SERVER, MySQL

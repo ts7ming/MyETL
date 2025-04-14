@@ -1,6 +1,6 @@
 from pyqueen import DataSource
 from settings import SERVERS
-from cheap.models import EtlDataSync, EtlDataSyncLog, get_session
+from cheap.models import EtlDataSync, EtlDataSyncLog, session_context
 from sqlalchemy import func
 
 ds = DataSource(**SERVERS['main'])
@@ -10,30 +10,23 @@ def get_job(user_job_list):
     """
     添加逗号, 确保不会误匹配
     """
-    session = get_session(ds)
-    user_job_list = [str(x) for x in user_job_list]
-    try:
+    with session_context() as session:
+        user_job_list = [str(x) for x in user_job_list]
         d_job = session.query(EtlDataSync).filter(EtlDataSync.id.in_(user_job_list)).all()
         return d_job
-    finally:
-        session.close()
 
 
 def start_job(job):
-    session = get_session(ds)
-    try:
+    with session_context() as session:
         new_log = EtlDataSyncLog(sync_id=job.sync_id, start_time=func.now)
         session.add(new_log)
         session.commit()
         log_id = session.query(func.max(EtlDataSyncLog.id)).filter(EtlDataSyncLog.sync_id == job.sync_id).scalar()
         return log_id
-    finally:
-        session.close()
 
 
 def end_job(log_id, status, rows, msg):
-    session = get_session(ds)
-    try:
+    with session_context() as session:
         job_log = session.query(EtlDataSyncLog).filter(EtlDataSyncLog.id == log_id).first()
         job_log.sync_status = status
         job_log.sync_rows = rows
@@ -41,8 +34,6 @@ def end_job(log_id, status, rows, msg):
         if msg is not None:
             job_log.error_message = msg.replace("'", '"')
         session.commit()
-    finally:
-        session.close()
 
 
 def read_data(job):

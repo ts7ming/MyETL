@@ -2,10 +2,13 @@ import importlib
 import os
 import sys
 from pyqueen import DataSource, TimeKit
+from sqlalchemy import and_, or_, func
+
 from cheap.etl.data_check import data_check
 from cheap.etl.data_sync import data_sync
 from cheap.etl.utils import msg_robot
-from settings import SERVERS, WORK_DIR, DEV, T_JOB, T_JOB_LOG
+from settings import SERVERS, WORK_DIR, DEV
+from cheap.models import session_context, EtlJob, EtlJobLog
 
 ds = DataSource(**SERVERS['main'])
 
@@ -29,44 +32,6 @@ def import_from_absolute_path(file_path, module_name=None):
     spec.loader.exec_module(module)  # 执行模块代码
     return module
 
-
-def get_job(job_list=None):
-    """
-    添加逗号, 确保不会误匹配
-    """
-    if job_list is None:
-        tk = TimeKit()
-        cur_month = str(int(str(tk.theday)[4:6])) + ','
-        cur_week = str(tk.nday_of_week) + ','
-        cur_day = str(int(str(tk.theday)[6:8])) + ','
-        cur_hour = str(tk.hour) + ','
-        cur_minute = str(tk.minute) + ','
-        sql = f'''
-            SELECT
-                id, job_name, job_type, job_dir, job_params, message_robot
-            FROM
-                {T_JOB}
-            WHERE
-                execution_status in (0, 99)
-                and job_status = 1
-                and (job_schedule_month='*' or concat(job_schedule_month,',') like '{cur_month}')
-                and (job_schedule_week='*' or concat(job_schedule_week,',') like '{cur_week}')
-                and (job_schedule_day='*' or concat(job_schedule_day,',') like '{cur_day}')
-                and (job_schedule_hour='*' or concat(job_schedule_hour,',') like '{cur_hour}')
-                and (job_schedule_minute='*' or concat(job_schedule_minute,',') like '{cur_minute}')
-        '''
-    else:
-        job_list_str = ','.join([str(x) for x in job_list])
-        sql = f'''
-            SELECT
-                id, job_name, job_type, job_dir, job_params, job_depend, message_robot
-            FROM
-                {T_JOB}
-            WHERE
-                id in ({job_list_str})
-        '''
-    df = ds.read_sql(sql)
-    return df.to_dict('records')
 
 
 def get_follow_job(job_str):
@@ -158,7 +123,7 @@ def run(job):
 
 
 def main(job_list=None):
-    job_list = get_job(job_list)
+    job_list = EtlJob().get_job(job_list)
     if len(job_list) == 0:
         print('没有任务')
         exit()

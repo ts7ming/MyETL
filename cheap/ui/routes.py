@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from cheap.ui.models import EtlJob
+from cheap.models import EtlJob, session_context
 
 main = Blueprint('main', __name__)
 
@@ -7,7 +7,7 @@ main = Blueprint('main', __name__)
 # 定义首页路由
 @main.route('/')
 def index():
-    jobs = EtlJob.query.all()
+    jobs = EtlJob().get_job()
     return render_template('index.html', jobs=jobs)
 
 
