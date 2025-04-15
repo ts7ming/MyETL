@@ -7,7 +7,7 @@ main = Blueprint('main', __name__)
 # 定义首页路由
 @main.route('/')
 def index():
-    jobs = EtlJob().get_job()
+    jobs = EtlJob().pending_job()
     return render_template('index.html', jobs=jobs)
 
 

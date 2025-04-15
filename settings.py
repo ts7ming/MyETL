@@ -1,4 +1,5 @@
 import os
+from pyqueen import DataSource
 
 # 项目名称 - web页面展示
 PROJECT_NAME = 'CheapETL'
@@ -25,15 +26,12 @@ T_ETL_CHECK = 'etl_data_check'
 # 必须配置一个`main` 数据库作为系统服务
 # 业务数据库可以配置在 下面 `SERVERS` 中, 也可以配置在 `T_ETL_SERVER` 表中
 
+DS_MAIN = DataSource(conn_type='sqlite',host=str(os.path.join(WORK_DIR, 'cheap/cheap.db')))
+
 T_ETL_SERVER = 'etl_server'  # 如果为 None 则使用 `SERVERS` 配置
 
 SERVERS = {
-    # 配置数据库 - 可选 sqlite, SQL SERVER, MySQL
-    'main': {
-        'conn_type': 'sqlite',
-        'host': str(os.path.join(WORK_DIR, 'cheap/cheap.db'))
-    },
-    # 新增其他业务数据库
+    # 业务数据库
     'dw01': {
         'conn_type': 'mssql'
     }
