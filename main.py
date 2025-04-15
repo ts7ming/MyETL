@@ -1,7 +1,7 @@
 import sys
 from cheap.etl.utils import msg_robot
 from settings import DEV
-from cheap.repo import JobRepo
+from cheap.repo.job_repo import JobRepo
 from cheap.job_manager import JobManager
 
 

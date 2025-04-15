@@ -79,7 +79,7 @@ class EtlJob(Base):
     message_robot = Column(Integer)
 
 
-class ETLJobExecutionStatus:
+class ExecutionStatus:
     pending = 0
     collected = 1
     running = 2

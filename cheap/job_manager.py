@@ -1,26 +1,32 @@
-from cheap.etl.data_check import data_check
-from cheap.etl.data_sync import data_sync
 from cheap.utils import load_workflow
 from settings import DEV
-from cheap.repo import JobRepo
+from cheap.repo.job_repo import JobRepo
+from cheap.repo.data_sync_repo import DataSyncRepo
 from cheap.etl.utils import msg_robot
 
 
 class JobManager:
     def __init__(self):
         self.job_repo = JobRepo()
+        self.data_sync_repo = DataSyncRepo()
 
-    @staticmethod
-    def __exe(job):
+    def __data_sync(self, job_list):
+        data_sync_job_list = self.data_sync_repo.job_list(job_filter=None)
+
+
+    def __data_check(self, job_list):
+        pass
+
+    def __exe(self, job):
         if job.job_type == 'workflow':
             wf = load_workflow(job.job_dir)
             wf.main()
         elif job.job_type == 'datasync':
             job_list = job.job_params.split(',')
-            data_sync(job_list)
+            self.__data_sync(job_list)
         elif job.job_type == 'datacheck':
             job_list = job.job_params.split(',')
-            data_check(job_list)
+            self.__data_check(job_list)
         else:
             raise Exception('无效作业类型')
         return 0, ""
