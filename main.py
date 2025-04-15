@@ -1,6 +1,6 @@
 import sys
 from cheap.etl.utils import msg_robot
-from settings import DEV
+from settings import IS_DEV
 from cheap.repo.job_repo import JobRepo
 from cheap.job_manager import JobManager
 
@@ -16,7 +16,7 @@ def main(job_list=None):
     while len(job_list) > 0:
         job_repo.collect_job(job_list)
         job = job_list.pop(0)
-        if DEV:
+        if IS_DEV:
             print(job)
         follow_job = jm.run(job)
         job_list.extend(follow_job)
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     user_job_list = sys.argv[1:]
     if len(user_job_list) == 0:
         user_job_list = None
-    if DEV:
+    if IS_DEV:
         main(user_job_list)
     else:
         try:

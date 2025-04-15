@@ -21,16 +21,17 @@ class BaseJobRepo:
         :return:
         """
         with session_context() as session:
-            job_list = session.query(self.job).filter(job_filter).all()
+            if job_filter is None:
+                job_list = session.query(self.job).all()
+            else:
+                job_list = session.query(self.job).filter(job_filter).all()
         return job_list
 
-
-    def job_list(self, customer_list):
-        job_list_str = [str(x) for x in job_list]
-        job_filter = EtlJob.execution_status.in_(job_list_str)
-        pending_job_list = self.job_list(job_filter)
+    def job_list(self, job_id_list):
+        job_list_str = [str(x) for x in job_id_list]
+        job_filter = self.job.id.in_(job_list_str)
+        pending_job_list = self.job_filter(job_filter)
         return pending_job_list
-
 
     def collect_job(self, job_list):
         """
@@ -40,7 +41,7 @@ class BaseJobRepo:
         """
         job_ids = [job['id'] for job in job_list]
         with session_context() as session:
-            session.query(self.job).filter(self.job.id.in_(job_ids)).update({self.job.execution_status: self.status.collected},
+            session.query(self.job).filter(self.job.id.in_(job_ids)).update({self.job.job_status: self.status.collected},
                                                                             synchronize_session=False)
             session.commit()
 
@@ -50,7 +51,7 @@ class BaseJobRepo:
         :return:
         """
         job_filter = and_(
-            self.job.execution_status.in_([0, 99]),
+            self.job.job_status.in_([0, 99]),
             self.job.job_status == 1,
             self.job.job_depend == job.id
         )
@@ -58,7 +59,7 @@ class BaseJobRepo:
 
     def register_job_start(self, job):
         with session_context() as session:
-            session.query(self.job).filter(self.job.id == job.id).update({self.job.execution_status: self.status.running}, synchronize_session=False)
+            session.query(self.job).filter(self.job.id == job.id).update({self.job.job_status: self.status.running}, synchronize_session=False)
             new_log = self.log(id=job.id, start_time=func.now)
             session.add(new_log)
             session.commit()
@@ -67,16 +68,16 @@ class BaseJobRepo:
 
     def register_job_success(self, job, job_log):
         with session_context() as session:
-            session.query(self.job).filter(self.job.id == job.id).update({self.job.execution_status: self.status.pending}, synchronize_session=False)
-            session.query(self.log).filter(self.log.id == job_log.id).update({self.job.execution_status: self.status.success},
+            session.query(self.job).filter(self.job.id == job.id).update({self.job.job_status: self.status.pending}, synchronize_session=False)
+            session.query(self.log).filter(self.log.id == job_log.id).update({self.job.job_status: self.status.success},
                                                                              synchronize_session=False)
             session.commit()
 
     def register_job_error(self, job, job_log, msg):
         with session_context() as session:
-            session.query(self.job).filter(self.job.id == job.id).update({self.job.execution_status: self.status.pending}, synchronize_session=False)
+            session.query(self.job).filter(self.job.id == job.id).update({self.job.job_status: self.status.pending}, synchronize_session=False)
             err = {
-                self.log.execution_status: self.status.error,
+                self.log.job_status: self.status.error,
                 self.log.error_message: msg,
                 self.log.end_time: func.now
             }

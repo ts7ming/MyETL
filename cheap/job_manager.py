@@ -1,5 +1,5 @@
 from cheap.utils import load_workflow
-from settings import DEV
+from settings import IS_DEV
 from cheap.repo.job_repo import JobRepo
 from cheap.repo.data_sync_repo import DataSyncRepo
 from cheap.etl.utils import msg_robot
@@ -11,7 +11,7 @@ class JobManager:
         self.data_sync_repo = DataSyncRepo()
 
     def __data_sync(self, job_list):
-        data_sync_job_list = self.data_sync_repo.job_list(job_filter=None)
+        data_sync_job_list = self.data_sync_repo.job_list()
 
 
     def __data_check(self, job_list):
@@ -33,7 +33,7 @@ class JobManager:
 
     def run(self, job):
         job_log = self.job_repo.register_job_start(job)
-        if DEV:
+        if IS_DEV:
             code, msg = self.__exe(job)
         else:
             try:

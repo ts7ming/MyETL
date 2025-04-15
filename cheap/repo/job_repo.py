@@ -24,7 +24,7 @@ class JobRepo(BaseJobRepo):
             cur_hour = str(tk.hour) + ','
             cur_minute = str(tk.minute) + ','
             job_filter = and_(
-                (self.job.execution_status.in_([0, 99]), self.job.job_status == 1),
+                (self.job.job_status.in_([0, 99]), self.job.job_status == 1),
                 or_(self.job.job_schedule_month == '*', func.concat(self.job.job_schedule_month, ',').like(f'{cur_month},%')),
                 or_(self.job.job_schedule_week == '*', func.concat(self.job.job_schedule_week, ',').like(f'{cur_week},%')),
                 or_(self.job.job_schedule_day == '*', func.concat(self.job.job_schedule_day, ',').like(f'{cur_day},%')),
@@ -33,7 +33,7 @@ class JobRepo(BaseJobRepo):
             )
         else:
             job_list_str = [str(x) for x in job_list]
-            job_filter = EtlJob.execution_status.in_(job_list_str)
-        pending_job_list = self.job_list(job_filter)
+            job_filter = EtlJob.job_status.in_(job_list_str)
+        pending_job_list = self.job_filter(job_filter)
         return pending_job_list
 

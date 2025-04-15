@@ -8,28 +8,33 @@ PROJECT_NAME = 'CheapETL'
 WORK_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # 是否开发模式 (为False时用try...except记录报错信息 为True时直接抛出异常)
-DEV = False
+IS_DEV = False
 
 # 是否开启工作流日志
-WF_LOG = True
-T_ETL_WORKFLOW_LOG = 'etl_workflow_log'
+IS_LOG = True
 
-# 表
-T_ETL_JOB = 'etl_job'
-T_ETL_JOB_LOG = 'etl_job_log'
-T_ETL_SYNC = 'etl_data_sync'
-T_ETL_SYNC_LOG = 'etl_data_sync_log'
+# 是否开启通知
+IS_MESSAGE = False
 
-T_ETL_CHECK = 'etl_data_check'
+# 各类配置和日志
+DS_MAIN = DataSource(conn_type='sqlite', host=str(os.path.join(WORK_DIR, 'cheap/cheap.db')))
 
-# 数据库和其他服务连接方式
-# 必须配置一个`main` 数据库作为系统服务
-# 业务数据库可以配置在 下面 `SERVERS` 中, 也可以配置在 `T_ETL_SERVER` 表中
+TABLE_ETL_SERVER = 'etl_server'  # 如果为 None 则使用 `SERVERS` 配置
+TABLE_ETL_ROBOT = 'etl_robot'  # 如果为 None 则使用 `ROBOTS` 配置
 
-DS_MAIN = DataSource(conn_type='sqlite',host=str(os.path.join(WORK_DIR, 'cheap/cheap.db')))
+TABLE_ETL_JOB = 'etl_job'
+TABLE_ETL_JOB_LOG = 'etl_job_log'
 
-T_ETL_SERVER = 'etl_server'  # 如果为 None 则使用 `SERVERS` 配置
+TABLE_ETL_WORKFLOW = 'etl_workflow'
+TABLE_ETL_WORKFLOW_LOG = 'etl_workflow_log'
 
+TABLE_ETL_SYNC = 'etl_data_sync'
+TABLE_ETL_SYNC_LOG = 'etl_data_sync_log'
+
+TABLE_ETL_CHECK = 'etl_data_check'
+
+
+# TABLE_ETL_SERVER 或 DS_MAIN 为 None 时生效
 SERVERS = {
     # 业务数据库
     'dw01': {
@@ -39,7 +44,7 @@ SERVERS = {
 
 # 机器人配置表
 # 建议配置一个 `devops` 运维通知群
-T_ETL_ROBOT = 'etl_robot'  # 如果为 None 则使用 `ROBOTS` 配置
+# TABLE_ETL_ROBOT 为 None 时生效
 
 ROBOTS = {
     'devops': {
