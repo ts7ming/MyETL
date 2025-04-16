@@ -5,9 +5,9 @@ from cheap.repo.data_sync_repo import DataSyncRepo
 from cheap.etl.utils import msg_robot
 
 
-class Job:
-    def __init__(self, repo):
-        self.repo = repo
+class JobAggregates:
+    def __init__(self, job_inst):
+        self.inst = job_inst
 
     def register_processing(self):
         pass
@@ -20,13 +20,6 @@ class JobManager:
     def __init__(self):
         self.job_repo = JobRepo()
         self.data_sync_repo = DataSyncRepo()
-
-    def __data_sync(self, job_list):
-        data_sync_job_list = self.data_sync_repo.job_list()
-
-    def __data_check(self, job_list):
-        pass
-
 
     def __entity2inst(self, entity=None, entity_list=None):
         if entity is not None:

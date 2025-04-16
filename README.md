@@ -8,11 +8,14 @@
 ![Language](https://img.shields.io/badge/language-Python-brightgreen)
 
 *****
-![](logo.png)
+![](docs/logo.png)
 
 
 
 # Doc
+
+![](docs/architecture.png)
+
 [CheapETL](https://cheapetl.readthedocs.io/zh-cn/latest/)
 
 # 主要功能
