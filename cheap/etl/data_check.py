@@ -1,9 +1,7 @@
 from pyqueen import DataSource
 from settings import SERVERS
-from cheap.models import EtlDataCheck, session_context
+from cheap.models import EtlDataCheck, EtlDataCheckLog, session_context
 from cheap.etl.utils import msg_robot
-
-ds = DataSource(**SERVERS['main'])
 
 
 def get_check_job(check_list):
@@ -11,7 +9,7 @@ def get_check_job(check_list):
     添加逗号, 确保不会误匹配
     """
     check_list = [str(x) for x in check_list]
-    with session_context(ds.get_jdbc_url()) as session:
+    with session_context() as session:
         c_job = session.query(EtlDataCheck).filter(EtlDataCheck.id.in_(check_list)).all()
         return c_job
 
@@ -19,7 +17,7 @@ def get_check_job(check_list):
 def check(job):
     tmp_ds = DataSource(**SERVERS[str(job.server_id)])
     tmp_ds.set_db(job.db_name)
-    v = ds.get_value(job.check_sql)
+    v = tmp_ds.get_value(job.check_sql)
     if str(v) == '1':
         msg_robot(robot_id=job.robot_id, msg=job.warning_message)
 

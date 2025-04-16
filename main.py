@@ -5,21 +5,10 @@ from cheap.repo.job_repo import JobRepo
 from cheap.job_manager import JobManager
 
 
-def main(job_list=None):
+def main(job_id_list=None):
     jm = JobManager()
-    job_repo = JobRepo()
-    job_list = job_repo.pending_job(job_list)
-    if len(job_list) == 0:
-        print('没有任务')
-        exit()
+    jm.main(job_id_list)
 
-    while len(job_list) > 0:
-        job_repo.collect_job(job_list)
-        job = job_list.pop(0)
-        if IS_DEV:
-            print(job)
-        follow_job = jm.run(job)
-        job_list.extend(follow_job)
 
 
 if __name__ == '__main__':
