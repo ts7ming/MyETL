@@ -1,15 +1,11 @@
-from pyqueen import TimeKit
-from sqlalchemy import and_, or_, func
-from cheap.models import EtlDataSync, EtlDataSyncLog
-from cheap.utils import session_context
-from cheap.repo.base import BaseJobRepo
+from cheap.repo.models import EtlDataSync, EtlDataSyncLog
+from cheap.repo.base import BaseRepo
 
-class DataSyncRepo(BaseJobRepo):
+
+class DataSyncRepo(BaseRepo):
     """
     作业管理
     """
 
     def __init__(self):
-        super().__init__(job_main=EtlDataSync, job_log=EtlDataSyncLog)
-
-
+        super().__init__()

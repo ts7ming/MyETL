@@ -1,5 +1,3 @@
-import inspect
-
 from pyqueen import DataSource, Dingtalk
 from settings import (
     SERVERS,
@@ -10,7 +8,7 @@ from settings import (
     TABLE_ETL_ROBOT,
 )
 
-from cheap.models import session_context, EtlWorkflowLog, EtlRobot, EtlServer
+from cheap.repo.models import session_context, EtlWorkflowLog, EtlRobot, EtlServer
 
 
 def log(etl_log):

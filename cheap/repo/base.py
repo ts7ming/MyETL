@@ -1,5 +1,13 @@
 import time
 
+from sqlalchemy.ext.declarative import declarative_base
+
+from cheap.domain.value_object import Field, Column
+
+
+
+Base = declarative_base()
+
 
 class BaseRepo:
     def __init__(self, session):
@@ -36,3 +44,24 @@ class BaseRepo:
             raise Exception('缺少更新范围')
         self.session.query(entity).filter(entity_filter).update(update_info, synchronize_session=False)
         self.session.commit()
+
+
+
+
+
+class DynamicRepo:
+    def __init__(self):
+        pass
+
+    def model(self, cname):
+        attrs = {
+            '__tablename__': self.__dict__['__table_name__'],
+            '__table_args__': {'comment': self.__dict__['__table_comment__']}
+        }
+        for k, v in self.__dict__.items():
+            if type(v) is Field:
+                print(k)
+                attrs[k] = Column(v.orm_type, doc=v.cmt, primary_key=v.pk)
+            else:
+                continue
+        return type(cname, (Base,), attrs)

@@ -1,6 +1,6 @@
 from pyqueen import DataSource
 from settings import SERVERS
-from cheap.models import EtlDataCheck, EtlDataCheckLog, session_context
+from cheap.repo.models import EtlDataCheck, session_context
 from cheap.etl.utils import msg_robot
 
 

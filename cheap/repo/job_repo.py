@@ -1,8 +1,8 @@
 from pyqueen import TimeKit
 from sqlalchemy import and_, or_, func
-from cheap.models import EtlJob, get_sub_job_entity, get_job_log_entity
+from cheap.repo.models import EtlJob, get_sub_job_entity, get_job_log_entity
 from cheap.repo.base import BaseRepo
-from cheap.models import JobStatus
+from cheap.repo.models import JobStatus
 
 
 class JobRepo(BaseRepo):

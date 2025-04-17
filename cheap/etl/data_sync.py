@@ -1,6 +1,6 @@
 from pyqueen import DataSource
 from settings import SERVERS
-from cheap.models import EtlDataSync, EtlDataSyncLog, session_context
+from cheap.repo.models import EtlDataSync, EtlDataSyncLog, session_context
 from sqlalchemy import func
 
 ds = DataSource(**SERVERS['main'])

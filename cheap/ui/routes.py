@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from cheap.models import EtlJob, session_context
+from cheap.repo.models import EtlJob
 
 main = Blueprint('main', __name__)
 
